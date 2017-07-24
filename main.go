@@ -35,8 +35,13 @@ func main() {
 	log.Infof("CF User info: %+v", u)
 
 	recordIDs := map[string][]string{}
+	ipAddressesSplit := strings.Split(ipAddresses, ",")
 
 	for _, domain := range strings.Split(domains, ",") {
+		if domain == "" {
+			log.Warn("empty domain name given, skipping")
+			continue
+		}
 		// Fetch the zone ID
 		zoneNameSplit := strings.Split(domain, ".")
 		zoneName := strings.Join(zoneNameSplit[len(zoneNameSplit)-2:], ".")
@@ -45,8 +50,11 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		ipAddressesSplit := strings.Split(ipAddresses, ",")
 		for _, ipAddress := range ipAddressesSplit {
+			if ipAddress == "" {
+				log.Warn("empty ip address given, skipping")
+				continue
+			}
 			records, err := api.DNSRecords(id, cloudflare.DNSRecord{
 				Name:    domain,
 				Content: ipAddress,
